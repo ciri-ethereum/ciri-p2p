@@ -1,4 +1,5 @@
-# Ciri::P2P
+# Ciri::P2P 
+[![Build Status](https://travis-ci.org/ciri-ethereum/ciri-p2p.svg?branch=master)](https://travis-ci.org/ciri-ethereum/ciri-p2p)
 
 P2P network implementation for [Ciri Ethereum](https://github.com/ciri-ethereum/ciri).
 
