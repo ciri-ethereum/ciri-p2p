@@ -11,14 +11,5 @@ before_install:
   - docker pull ciriethereum/ciri:latest
 
 script:
-  - docker run -v `pwd`:/app --rm ciriethereum/ciri:latest bundle install && bundle exec rake
+  - docker run -v `pwd`:/app --rm ciriethereum/ciri:latest bash -c 'bundle install && bundle exec rspec'
 
-
-
----
-sudo: false
-language: ruby
-cache: bundler
-rvm:
-  - 2.5.1
-before_install: gem install bundler -v 1.16.5

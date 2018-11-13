@@ -138,7 +138,7 @@ RSpec.describe Ciri::P2P::Server do
             # wait few seconds...
             wait_seconds = 0
             sleep_interval = 1
-            while wait_seconds < 10 && protocols.any?{|proto| proto.received_messages.count < 2}
+            while wait_seconds < 15 && protocols.any?{|proto| proto.received_messages.count < 2}
               task.sleep(sleep_interval)
               wait_seconds += sleep_interval
             end
