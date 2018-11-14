@@ -127,7 +127,7 @@ RSpec.describe Ciri::P2P::Discovery::Service do
           wait_seconds = 0
           sleep_interval = 0.5
           while wait_seconds < 10 && 
-              (s3_addresses = s1.peer_store.get_node_addresses(s3.local_node_id.to_bytes)).empty?
+              (s3_addresses = s1.peer_store.get_node_addresses(s3.local_node_id.to_bytes)).nil?
             task.sleep(sleep_interval)
             wait_seconds += sleep_interval
           end
