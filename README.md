@@ -3,9 +3,11 @@
 
 P2P network implementation for [Ciri Ethereum](https://github.com/ciri-ethereum/ciri).
 
-`ciri-p2p` is a DevP2P implementation, we also seek to implement LibP2P components upon ciri-p2p codebase in the future.
+`ciri-p2p` is a [DevP2P](https://github.com/ethereum/devp2p) implementation, we also seek to implement [LibP2P](https://github.com/libp2p/libp2p) components upon ciri-p2p codebase in the future.
 
 ## Installation
+
+Check [Ciri Install Dependencies](https://github.com/ciri-ethereum/ciri#install-dependencies) to learn how to install dependencies.
 
 Add this line to your application's Gemfile:
 
@@ -23,7 +25,7 @@ Or install it yourself as:
 
 ## Usage
 
-Check spec directory.
+Check [spec](https://github.com/ciri-ethereum/ciri-p2p/tree/master/spec) directory.
 
 ## Development
 
