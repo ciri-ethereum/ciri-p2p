@@ -5,7 +5,7 @@ require "ciri/p2p/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "ciri-p2p"
-  spec.version       = Ciri::P2p::VERSION
+  spec.version       = Ciri::P2P::VERSION
   spec.authors       = ["jjy"]
   spec.email         = ["jjyruby@gmail.com"]
 

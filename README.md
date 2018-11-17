@@ -7,7 +7,32 @@ P2P network implementation for [Ciri Ethereum](https://github.com/ciri-ethereum/
 
 ## Installation
 
-Check [Ciri Install Dependencies](https://github.com/ciri-ethereum/ciri#install-dependencies) to learn how to install dependencies.
+### Install dependencies
+
+Ciri P2P depend on `secp256k1` to handle crypto signature and depend on `snappy` to compress data.
+
+Build and install `secp256k1`
+
+``` bash
+cd ciri
+git submodule init && git submodule update
+rake install:secp256k1
+```
+
+On Mac you can install `snappy` with homebrew
+
+``` bash
+brew install snappy
+```
+
+For linux users, remember to check [Dockerfile](/docker) instructions for hint.
+
+then run tests: 
+``` bash
+bundle exec rake spec
+```
+
+### Install as Gem
 
 Add this line to your application's Gemfile:
 

@@ -1,5 +1,5 @@
 module Ciri
-  module P2p
+  module P2P
     VERSION = "0.1.0"
   end
 end

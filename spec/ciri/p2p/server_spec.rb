@@ -75,8 +75,8 @@ RSpec.describe Ciri::P2P::Server do
 
         def connected(context)
           return if @stop
-          context.send_data(1, "hello from #{Ciri::Utils.to_hex @raw_local_node_id}")
           @connected_peers << context.peer
+          context.send_data(1, "hello from #{Ciri::Utils.to_hex @raw_local_node_id}")
         end
 
         def disconnected(context)
@@ -100,7 +100,7 @@ RSpec.describe Ciri::P2P::Server do
         udp_port: 0,
         ping_interval_secs: 1,
         discovery_interval_secs: 0.5,
-        dial_outgoing_interval_secs: 1)
+        dial_outgoing_interval_secs: 0.5)
     end
 
     it "3 nodes connect each other" do
@@ -133,7 +133,7 @@ RSpec.describe Ciri::P2P::Server do
         end
 
         # wait.. and check each node result
-        task.reactor.after(3) do
+        task.reactor.after(5) do
           task.async do
             # wait few seconds...
             wait_seconds = 0
