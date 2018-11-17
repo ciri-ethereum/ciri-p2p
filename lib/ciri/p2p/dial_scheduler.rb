@@ -54,7 +54,7 @@ module Ciri
       def dial_bootnodes
         @network_state.peer_store.find_bootnodes(@network_state.number_of_attemp_outgoing).each do |node|
           conn, handshake = @dialer.dial(node)
-          @network_state.new_peer_connected(conn, handshake, way_for_connection: Peer::OUTGOING)
+          @network_state.new_peer_connected(conn, handshake, direction: Peer::OUTGOING)
         end
       end
 
@@ -63,7 +63,7 @@ module Ciri
           # avoid dial self or connected peers
           next if @network_state.peers.include?(node.raw_node_id) || node.raw_node_id == @network_state.local_node_id
           conn, handshake = @dialer.dial(node)
-          @network_state.new_peer_connected(conn, handshake, way_for_connection: Peer::OUTGOING)
+          @network_state.new_peer_connected(conn, handshake, direction: Peer::OUTGOING)
         end
       end
     end

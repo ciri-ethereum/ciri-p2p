@@ -11,4 +11,8 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+  # set logger
+  require 'ciri/utils/logger'
+  level = %w{1 yes true}.include?(ENV['DEBUG']) ? :debug : :fatal
+  Ciri::Utils::Logger.setup(level: level)
 end

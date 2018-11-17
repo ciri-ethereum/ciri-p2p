@@ -35,22 +35,22 @@ module Ciri
       OUTGOING = :outgoing
       INCOMING = :incoming
 
-      attr_reader :connection
+      attr_reader :connection, :direction
 
-      def initialize(connection, handshake, protocols, way_for_connection:)
+      def initialize(connection, handshake, protocols, direction:)
         @connection = connection
         @handshake = handshake
         @protocols = protocols
         @protocol_io_hash = make_protocol_io_hash(protocols, handshake.caps, connection)
-        @way_for_connection = way_for_connection
+        @direction = direction
       end
 
       def outgoing?
-        @way_for_connection == OUTGOING
+        @direction == OUTGOING
       end
 
       def incoming?
-        @way_for_connection == INCOMING
+        @direction == INCOMING
       end
 
       def to_s
@@ -60,7 +60,7 @@ module Ciri
       end
 
       def inspect
-        "<Peer:#{to_s}>"
+        "<Peer:#{to_s} direction: #{@direction}>"
       end
 
       def hash

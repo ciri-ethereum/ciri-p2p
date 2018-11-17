@@ -111,8 +111,8 @@ RSpec.describe Ciri::P2P::NetworkState do
 
       task.async do
         network_state.initialize_protocols
-        network_state.new_peer_connected(connection, handshake, way_for_connection: :incoming)
-        network_state.new_peer_connected(connection, handshake_only_hello, way_for_connection: :incoming)
+        network_state.new_peer_connected(connection, handshake, direction: :incoming)
+        network_state.new_peer_connected(connection, handshake_only_hello, direction: :incoming)
         task.reactor.stop
       end
     end
@@ -143,10 +143,10 @@ RSpec.describe Ciri::P2P::NetworkState do
       task.async do
         network_state.initialize_protocols
         expect do
-          network_state.new_peer_connected(connection, handshake_only_hello, way_for_connection: :incoming)
+          network_state.new_peer_connected(connection, handshake_only_hello, direction: :incoming)
         end.not_to raise_error
         expect do
-          network_state.new_peer_connected(connection, handshake_only_hi, way_for_connection: :incoming)
+          network_state.new_peer_connected(connection, handshake_only_hi, direction: :incoming)
         end.to raise_error(Ciri::P2P::UselessPeerError)
         task.reactor.stop
       end

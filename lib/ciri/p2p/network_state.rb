@@ -23,6 +23,7 @@
 
 
 require 'async'
+require 'async/semaphore'
 require 'ciri/utils/logger'
 require_relative 'peer'
 require_relative 'errors'
@@ -40,6 +41,7 @@ module Ciri
 
       def initialize(protocols:, peer_store:, local_node_id:, max_outgoing: 10, max_incoming: 10, ping_interval_secs: 15)
         @peers = {}
+        @peers_lock = Async::Semaphore.new
         @peer_store = peer_store
         @protocols = protocols
         @local_node_id = local_node_id
@@ -60,35 +62,41 @@ module Ciri
         @max_outgoing - @peers.values.select(&:outgoing?).count
       end
 
-      def new_peer_connected(connection, handshake, way_for_connection:, task: Async::Task.current)
-        protocol_handshake_checks(handshake)
-        peer = Peer.new(connection, handshake, @protocols, way_for_connection: way_for_connection)
-        # disconnect already connected peers
-        if @peers.include?(peer.raw_node_id)
-          debug("[#{local_node_id.short_hex}] peer #{peer} is already connected")
-          return
+      def new_peer_connected(connection, handshake, direction:, task: Async::Task.current)
+        @peers_lock.acquire do
+          peer = Peer.new(connection, handshake, @protocols, direction: direction)
+          # disconnect already connected peers
+          if @peers.include?(peer.raw_node_id)
+            debug("[#{local_node_id.short_hex}] peer #{peer.inspect} is already connected")
+            # disconnect duplicate connection
+            peer.disconnect
+            return
+          end
+          # check peers
+          protocol_handshake_checks(handshake)
+          @peers[peer.raw_node_id] = peer
+          debug "[#{local_node_id.short_hex}] connect to new peer #{peer.inspect}"
+          @peer_store.update_peer_status(peer.raw_node_id, PeerStore::Status::CONNECTED)
+          # run peer logic
+          task.async do
+            register_peer_protocols(peer)
+            handling_peer(peer)
+          end
         end
-        @peers[peer.raw_node_id] = peer
-        debug "[#{local_node_id.short_hex}] connect to new peer #{peer}"
-        @peer_store.update_peer_status(peer.raw_node_id, PeerStore::Status::CONNECTED)
-        # run peer logic
-        task.async do
-          register_peer_protocols(peer)
-          handling_peer(peer)
-        end
-      end
-
-      def remove_peer(peer)
-        @peers.delete(peer.raw_node_id)
-        deregister_peer_protocols(peer)
       end
 
       def disconnect_peer(peer, reason: nil)
-        return unless @peers.include?(peer.raw_node_id)
-        debug("[#{local_node_id.short_hex}] disconnect peer: #{peer}, reason: #{reason}")
-        remove_peer(peer)
-        peer.disconnect
-        @peer_store.update_peer_status(peer.raw_node_id, PeerStore::Status::DISCONNECTED)
+        @peers_lock.acquire do
+          # only disconnect from peers if direction correct to avoiding delete peer by mistake
+          if (exist_peer = @peers[peer.raw_node_id]) && exist_peer.direction == peer.direction
+            debug("[#{local_node_id.short_hex}] disconnect peer: #{peer.inspect}, reason: #{reason}")
+            remove_peer(peer)
+            peer.disconnect
+            @peer_store.update_peer_status(peer.raw_node_id, PeerStore::Status::DISCONNECTED)
+          else
+            debug("[#{local_node_id.short_hex}] Ignoring: disconnect peer: #{peer.inspect}, reason: #{reason}")
+          end
+        end
       end
 
       def disconnect_all
@@ -100,6 +108,12 @@ module Ciri
 
       private
 
+      def remove_peer(peer)
+        @peers.delete(peer.raw_node_id)
+        deregister_peer_protocols(peer)
+      end
+
+
       def register_peer_protocols(peer, task: Async::Task.current)
         peer.protocol_ios.dup.each do |protocol_io|
           task.async do
@@ -107,7 +121,7 @@ module Ciri
             context = ProtocolContext.new(self, peer: peer, protocol: protocol_io.protocol, protocol_io: protocol_io)
             context.protocol.connected(context)
           rescue StandardError => e
-            error("Protocol#connected error: {e}\nbacktrace: #{e.backtrace.join "\n"}")
+            error("Protocol#connected error: #{e}\nbacktrace: #{e.backtrace.join "\n"}")
             disconnect_peer(peer, reason: "Protocol#connected callback error: #{e}")
           end
         end

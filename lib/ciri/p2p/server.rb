@@ -148,7 +148,7 @@ module Ciri
             c = Connection.new(client)
             c.encryption_handshake!(private_key: @private_key)
             remote_handshake = c.protocol_handshake!(handshake)
-            @network_state.new_peer_connected(c, remote_handshake, way_for_connection: Peer::INCOMING)
+            @network_state.new_peer_connected(c, remote_handshake, direction: Peer::INCOMING)
           end
         end
       end

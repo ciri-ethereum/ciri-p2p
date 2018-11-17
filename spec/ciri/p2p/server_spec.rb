@@ -75,8 +75,8 @@ RSpec.describe Ciri::P2P::Server do
 
         def connected(context)
           return if @stop
-          @connected_peers << context.peer
           context.send_data(1, "hello from #{Ciri::Utils.to_hex @raw_local_node_id}")
+          @connected_peers << context.peer
         end
 
         def disconnected(context)
@@ -137,7 +137,7 @@ RSpec.describe Ciri::P2P::Server do
           task.async do
             # wait few seconds...
             wait_seconds = 0
-            sleep_interval = 1
+            sleep_interval = 0.3
             while wait_seconds < 15 && protocols.any?{|proto| proto.received_messages.count < 2}
               task.sleep(sleep_interval)
               wait_seconds += sleep_interval
@@ -146,9 +146,10 @@ RSpec.describe Ciri::P2P::Server do
             # check peers attributes
             protocols.each do |proto|
               expect(proto.raw_local_node_id).not_to be_nil
-              expect(proto.connected_peers.count).to eq 2
-              expect(proto.disconnected_peers.count).to eq 0
+              expect(proto.connected_peers.count - proto.disconnected_peers.count).to eq 2
             end
+            # because duplicate connection during booting phase, we maybe have few disconnected peer
+            list_of_disconnected_peers_count = protocols.map{|protocol| protocol.disconnected_peers.count }
             # node received 2 messages
             expect(protocols[0].received_messages.count).to eq 2
             expect(protocols[1].received_messages.count).to eq 2
@@ -163,9 +164,9 @@ RSpec.describe Ciri::P2P::Server do
             bootnode_task.stop
             node1_task.stop
             node2_task.stop
-            expect(protocols[0].disconnected_peers.count).to eq 2
-            expect(protocols[1].disconnected_peers.count).to eq 2
-            expect(protocols[2].disconnected_peers.count).to eq 2
+            protocols.each_with_index do |protocol, i|
+              expect(protocol.disconnected_peers.count - list_of_disconnected_peers_count[i]).to eq 2
+            end
             task.reactor.stop
           end
         end
