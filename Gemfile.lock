@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    ciri-p2p (0.2.0)
+    ciri-p2p (0.3.0)
       async (~> 1.10.3)
       async-io (~> 1.15.5)
       ciri-common (~> 0.1.0)
