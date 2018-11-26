@@ -34,7 +34,6 @@ module Ciri
 
       attr_reader :peer, :protocol, :protocol_io
 
-      def_delegators :protocol_io, :send_data
       def_delegators :@network_state, :local_node_id
 
       def initialize(network_state, peer: nil, protocol: nil, protocol_io: nil)
@@ -44,8 +43,27 @@ module Ciri
         @protocol_io = protocol_io
       end
 
+      def send_data(code, data, peer: self.peer, protocol: self.protocol.name)
+        ensure_peer(peer).find_protocol_io(protocol).send_data(code, data)
+      end
+
       def raw_local_node_id
         @raw_local_node_id ||= local_node_id.to_bytes
+      end
+
+      def peers
+        @network_state.peers.values
+      end
+
+      def find_peer(raw_node_id)
+        @network_state.peers[raw_node_id]
+      end
+
+      private
+
+      def ensure_peer(peer)
+        return peer if peer.is_a?(P2P::Peer)
+        @network_state.peers[peer]
       end
     end
 

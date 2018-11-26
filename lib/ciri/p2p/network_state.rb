@@ -53,7 +53,7 @@ module Ciri
       def initialize_protocols(task: Async::Task.current)
         # initialize protocols
         @protocols.each do |protocol|
-          context = ProtocolContext.new(self)
+          context = ProtocolContext.new(self, protocol: protocol)
           task.async {protocol.initialized(context)}
         end
       end
@@ -75,7 +75,7 @@ module Ciri
           # check peers
           protocol_handshake_checks(handshake)
           @peers[peer.raw_node_id] = peer
-          debug "[#{local_node_id.short_hex}] connect to new peer #{peer.inspect}"
+          info "[#{local_node_id.short_hex}] connect to new peer #{peer.inspect}"
           @peer_store.update_peer_status(peer.raw_node_id, PeerStore::Status::CONNECTED)
           # run peer logic
           task.async do
@@ -89,7 +89,7 @@ module Ciri
         @peers_lock.acquire do
           # only disconnect from peers if direction correct to avoiding delete peer by mistake
           if (exist_peer = @peers[peer.raw_node_id]) && exist_peer.direction == peer.direction
-            debug("[#{local_node_id.short_hex}] disconnect peer: #{peer.inspect}, reason: #{reason}")
+            info("[#{local_node_id.short_hex}] disconnect peer: #{peer.inspect}, reason: #{reason}")
             remove_peer(peer)
             peer.disconnect
             @peer_store.update_peer_status(peer.raw_node_id, PeerStore::Status::DISCONNECTED)
@@ -166,7 +166,8 @@ module Ciri
             handle_message(peer, msg)
           end
         rescue StandardError => e
-          disconnect_peer(peer, reason: "io error: #{e}\n#{e.backtrace.join "\n"}")
+          disconnect_peer(peer, reason: "io error: #{e}")
+          error("io error: #{e}\n#{e.backtrace.join "\n"}")
         end
 
         message_service.wait

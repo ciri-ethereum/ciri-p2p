@@ -94,7 +94,7 @@ module Ciri
               @udp_port = @local_address.ip_port
             end
 
-            debug "start discovery server on udp_port: #{@udp_port} tcp_port: #{@tcp_port}\nlocal_node_id: #{@local_node_id}"
+            info "start discovery server on udp_port: #{@udp_port} tcp_port: #{@tcp_port}\nlocal_node_id: #{@local_node_id}"
 
             loop do
               # read discovery message
