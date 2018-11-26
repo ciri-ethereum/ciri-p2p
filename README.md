@@ -50,7 +50,12 @@ Or install it yourself as:
 
 ## Usage
 
-Check [spec](https://github.com/ciri-ethereum/ciri-p2p/tree/master/spec) directory.
+Check [spec](https://github.com/ciri-ethereum/ciri-p2p/tree/master/spec) directory, especially [server_spec.rb](https://github.com/ciri-ethereum/ciri-p2p/blob/master/spec/ciri/p2p/server_spec.rb).
+
+#### Examples
+
+* [3 nodes connected each other](https://github.com/ciri-ethereum/ciri-p2p/blob/master/spec/ciri/p2p/server_spec.rb#L106)
+* [Gossip DNS Example](https://github.com/jjyr/gossip-dns-example)
 
 ## Development
 
